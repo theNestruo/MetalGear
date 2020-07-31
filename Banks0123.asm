@@ -5351,14 +5351,14 @@ DecodeTextEnd3:
 
 AddDictEntry:
 	if	(JAPANESE)
-		    cp     #d9        
-		    ld     c,a        
-		    jr     nz,AddDictEntry1   
-		    
-		    ld     a,#01      
+		    cp     #d9
+		    ld     c,a
+		    jr     nz,AddDictEntry1
+
+		    ld     a,#01
 		    ld     (flagTxtItem),a
 AddDictEntry1:
-		    ld     a,c 
+		    ld     a,c
 	ENDIF
 		    sub	    0A1h			    ; A	= Dictionary index
 
@@ -5391,7 +5391,7 @@ AddDictEntry3:
 		    jr	    DecodeText2
 
 
-	
+
 	include	"logic/regionlock.asm"
 
 
@@ -8054,7 +8054,7 @@ TW_PrintChar7:
 		    and     a
 		    jp      nz, TW_PrintChar
 	ENDIF
-	
+
 ; Check	if Snake is talking
 		    ld	    a, (TextId)
 		    cp	    10				    ; TEXT: This is Solid Snake... Your	reply, please
@@ -8148,7 +8148,14 @@ TW_Wait:
 		    jr	    z, TW_Wait2			    ; Wait. Do not check the keys that skip the	text
 
 		    ld	    a, (ControlsTrigger)	    ; 5	= Fire2	/ M,  4	= Fire / Space,	3 = Right, 2 = Left, 1 = Down, 0 = Up
+	IF (PATCH_TW_Wait)
+		    ; Metal Gear 1 Dynamic Vsync patch v2 (c) 2011 by FRS
+		    ; - SPACE : speed up text dialogs, now works like Metal Gear-2
+		    ; 001EAB 001EAB 1     PAT  0000009F   000000A4 6        30
+		    and	    30h				    ; M/N / Space
+	ELSE
 		    and	    20h				    ; M/N
+	ENDIF
 		    jr	    nz,	EraseWinText
 
 		    ld	    a, (FKeysTrigger)		    ; 0	0 RET F5 F4 F3 F2 F1
@@ -8159,13 +8166,21 @@ TW_Wait:
 		    ld      a, (flagTxtItem)
 		    and     a
 		    jr      z, TW_Wait1
-		    
+
+	IF (PATCH_TW_Wait)
+		    ; Metal Gear 1 Dynamic Vsync patch v2 (c) 2011 by FRS
+		    ; - SPACE : speed up text dialogs, now works like Metal Gear-2
+		    ; 001EBD 001EC0 4     PAT  000000A5   000000AD 9        06 C0 E6 30
+		    ld      a, (ControlsTrigger)
+		    and     30h
+	ELSE
 		    ld      a, (ControlsHold)
 		    and     0Fh
+	ENDIF
 		    jr      nz, EraseWinText
 TW_Wait1:
 	ENDIF
-	
+
 		    ld	    a, (SkipTextMode)		    ; 0	= Text can be skipped. Need to press a key to read next	text box
 							    ; 1	= Text can not be skipped. Need	to press a key to read next text box
 							    ; 2	= Text can not be skipped. Need	to wait	to read	next text box
@@ -8230,13 +8245,13 @@ TW_GetTextPage:
 		    sub     62              ; TEXT: Gear taken!!
 		    ld      a, 0
 		    jr      nz, TW_GetTextPage1
-		    
+
 		    inc     a
 
 TW_GetTextPage1:
 		    ld      (flagTxtItem), a
 	ENDIF
-	
+
 		    ld	    a, (PendingTextFlag)
 		    and	    a				    ; Is there more text?
 		    jp	    z, NextTextStatus
@@ -12832,7 +12847,15 @@ ChkKillPunching:
 ChkDropItem:
 		    ld	    a, (ix+ACTOR.ID)		    ; Enemy type
 		    cp	    ID_GUARD_SLOW		    ; (!?) Only	this ID	drops an item
+	IF (PATCH_ChkDropItem)
+		    ; "Otra curiosidad del Metal Gear. Todo apunta a que, inicialmente,
+		    ; varios tipos de soldado podían dejar munición o comida, al darles tres puñetazos.
+		    ; Pero por un cambio de última hora, o un fallo, solo los que andan lento lo hacen."
+		    ; https://twitter.com/manuelpazosmsx/status/1037027943120285696
+			jr	    z, ChkDropItem3
+	ELSE
 		    jr	    nz,	ChkDropItem3		    ; The NZ filters all other enemy types
+	ENDIF
 
 		    cp	    ID_GUARD_MEDIUM
 		    jr	    z, ChkDropItem2
@@ -13732,9 +13755,9 @@ RestLaserBack_:
 	include	"logic/menuequipment.asm"
 
 	include	"logic/checkweaponalert.asm"
-		    
-	include	"logic/weaponuse.asm"		    
-		    
+
+	include	"logic/weaponuse.asm"
+
 	include	"logic/textboxappear.asm"
 
 	include	"logic/collisions.asm"

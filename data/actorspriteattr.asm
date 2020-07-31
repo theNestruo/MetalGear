@@ -79,7 +79,16 @@ idxActorSprCols:    dw ActorSprNoColor
 		    dw ActorSprColors18
 
 
-ActorSprColors2:    db	0Ch, 0Ch
+ActorSprColors2:
+	IF (PATCH_ActorSprColors2)
+		    ; Metal Gear 1 Dynamic Vsync patch v2 (c) 2011 by FRS
+		    ; - Improved graphics for the moving parts of the bridge. They now match the
+		    ;   non-moving pieces better.
+		    ; 00B7DC 00B7DD 2     PAT  000000E7   000000ED 7        1C 1C
+		    db	1Ch, 1Ch
+	ELSE
+		    db	0Ch, 0Ch
+	ENDIF
 
 ActorSprColors5:    db	0Bh, 4Ch, 0Bh, 4Ch, 0Bh, 4Ch, 0Bh, 4Ch,	0Bh, 4Ch, 0Bh, 4Ch, 0Bh, 4Ch, 0Bh, 4Ch
 		    db	0Bh, 4Ch

@@ -3,7 +3,7 @@
 ;
 ; Region lock
 ; Check if the MSX is Japanese
-; 
+;
 ; BASVER1:
 ;
 ; 7 6 5 4 3 2 1 0
@@ -25,14 +25,37 @@
 ;                   0 = Japanese, 1 = International
 ;----------------------------------------------------------------------------
 RegionLock:
+	IF (PATCH_RegionLock)
+		    ; Metal Gear 1 Dynamic Vsync patch v2 (c) 2011 by FRS
+		    ; - Removed the annoying region lock.
+		    ;   Now it's possible to play the japanese version on non-japanese machines
+		    ; 001322 001331 16    RLE  00000071   00000078 8        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+		    nop
+		    nop
+		    nop
+		    nop
+		    nop
+		    nop
+		    nop
+		    nop
+		    nop
+		    nop
+		    nop
+		    nop
+		    nop
+		    nop
+		    nop
+;		    nop ; (keep the original "ret" because the "call RegionLock" may be kept unpatched)
+	ELSE
 	if	(JAPANESE)
-		ld     hl,(BASVER1) 
-		ld     a,l        
+		ld     hl,(BASVER1)
+		ld     a,l
 		and    #f7		; Japanese character set? Y-M-D date format? 60Hz?
 		jp     nz,#0000   	; No, reset the computer
-	
-		ld     a,h        
+
+		ld     a,h
 		and    #cf		; Japanese keyboard type?
 		jp     nz,#0000   	; No, reset the computer
 	ENDIF
-		ret              
+	ENDIF
+		ret

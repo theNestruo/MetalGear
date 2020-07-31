@@ -30,6 +30,7 @@ FindUsedSlot:
 		    push    de
 		    pop	    hl
 
+FindUsedSlot2:
 		    ld	    a, 4
 		    call    ADD_HL_A
 
@@ -37,7 +38,14 @@ FindUsedSlot:
 		    and	    a				    ; Empty slot?
 		    jr	    nz,	MoveItemSlot		    ; No
 
+	IF (PATCH_FindUsedSlot)
+		    ; "Metal Gear was designed to group items and weapons in the menu. But due to a bug it does not work.
+		    ; Fix: replace #F5 by #F3 at offset #5251"
+		    ; https://twitter.com/ManuelPazosMSX/status/920222830582730752
+		    djnz	FindUsedSlot2
+	ELSE
 		    djnz    FindUsedSlot		    ; (!?) The loop should skip	PUSH DE	/ POP HL
+	ENDIF
 		    ret
 
 
